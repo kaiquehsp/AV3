@@ -57,7 +57,7 @@ A interface implementa visualmente todas as regras de negócio definidas na AV1,
 git clone https://github.com/kaiquehsp/AV2.git
 
 # 2. Entre no diretório do projeto
-cd aerocode-gui
+cd AV2
 
 # 3. Instale as dependências
 npm install
