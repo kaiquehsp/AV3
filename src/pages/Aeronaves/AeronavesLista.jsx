@@ -1,125 +1,146 @@
-import React, { useState } from 'react';
-import { mockAeronaves } from '../../data/mockAeronaves'; 
+// src/pages/Aeronaves/AeronavesLista.jsx
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styles from './AeronavesLista.module.css';
 import Modal from '../../components/Modal/Modal.jsx';
 
-
-import { mockPecas } from '../../data/mockPecas';
-
 function AeronavesLista() {
-  const [listaDeAeronaves, setListaDeAeronaves] = useState(mockAeronaves);
+  const [listaDeAeronaves, setListaDeAeronaves] = useState([]);
   
+  // Precisamos carregar as peças para o modal de vínculo
+  const [listaDePecasDisponiveis, setListaDePecasDisponiveis] = useState([]); 
+
   const [isRegistrarModalOpen, setIsRegistrarModalOpen] = useState(false);
-  const [isVincularModalOpen, setIsVincularModalOpen] = useState(false); // Este modal
+  const [isVincularModalOpen, setIsVincularModalOpen] = useState(false);
+  
+  // --- NOVO: Estado para o modal de Visualizar Detalhes ---
+  const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
+  const [aeronaveDetalhes, setAeronaveDetalhes] = useState(null);
 
-
+  // Estados do formulário Cadastro Aeronave
   const [novoCodigo, setNovoCodigo] = useState('');
- 
   const [novoModelo, setNovoModelo] = useState('');
   const [novoTipo, setNovoTipo] = useState('COMERCIAL');
   const [novaCapacidade, setNovaCapacidade] = useState(0);
   const [novoAlcance, setNovoAlcance] = useState(0);
 
+  // Estados do formulário Vínculo
+  const [aeronaveSelecionadaId, setAeronaveSelecionadaId] = useState('');
+  const [pecaSelecionadaId, setPecaSelecionadaId] = useState('');
 
-  
-  const [aeronaveSelecionadaId, setAeronaveSelecionadaId] = useState(mockAeronaves[0]?.id || '');
-  const [pecaSelecionadaId, setPecaSelecionadaId] = useState(mockPecas[0]?.id || '');
+  // --- CARREGAR DADOS ---
+  useEffect(() => {
+    carregarDados();
+  }, []);
 
+  const carregarDados = async () => {
+    try {
+      const [resAeronaves, resPecas] = await Promise.all([
+        axios.get('http://localhost:3000/aeronaves'),
+        axios.get('http://localhost:3000/pecas')
+      ]);
 
-  const handleVisualizar = (aeronaveId) => {
-    alert(`Visualizando detalhes da aeronave: ${aeronaveId}`);
-  };
+      setListaDeAeronaves(resAeronaves.data);
 
-  const handleRegistrarSubmit = (e) => {
-    e.preventDefault();
-    const codigoExistente = listaDeAeronaves.find(a => a.codigo === novoCodigo);
-    if (codigoExistente) {
-      alert('Erro: O código da aeronave já existe.');
-      return;
+      // Filtra peças livres
+      const pecasLivres = resPecas.data.filter(p => !p.aeronaveId);
+      setListaDePecasDisponiveis(pecasLivres);
+
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error);
     }
-    const novaAeronave = {
-      id: novoCodigo,
-      codigo: novoCodigo,
-      modelo: novoModelo,
-      tipo: novoTipo,
-      capacidade: parseInt(novaCapacidade, 10),
-      alcance: parseInt(novoAlcance, 10),
-      status: 'Recém Cadastrada'
-    };
-    setListaDeAeronaves([novaAeronave, ...listaDeAeronaves]);
-    setIsRegistrarModalOpen(false);
-    setNovoCodigo('');
-    setNovoModelo('');
-    setNovoTipo('COMERCIAL');
-    setNovaCapacidade(0);
-    setNovoAlcance(0);
   };
 
-  
-  const handleVincularSubmit = (e) => {
+  // --- REGISTRAR AERONAVE ---
+  const handleRegistrarSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const novaAeronave = {
+        codigo: novoCodigo,
+        modelo: novoModelo,
+        tipo: novoTipo,
+        capacidade: Number(novaCapacidade),
+        alcance: Number(novoAlcance)
+      };
+      await axios.post('http://localhost:3000/aeronaves', novaAeronave);
+      alert("Aeronave cadastrada com sucesso!");
+      carregarDados(); 
+      setIsRegistrarModalOpen(false);
+      setNovoCodigo(''); setNovoModelo(''); setNovoCapacidade(0); setNovoAlcance(0);
+    } catch (error) {
+      alert("Erro ao cadastrar. Verifique o código.");
+    }
+  };
+
+  // --- VINCULAR PEÇA ---
+  const handleVincularSubmit = async (e) => {
     e.preventDefault();
     if (!aeronaveSelecionadaId || !pecaSelecionadaId) {
-      alert('Por favor, selecione uma aeronave e uma peça.');
+      alert("Selecione uma aeronave e uma peça.");
       return;
     }
-
-    
-    alert(`Peça ${pecaSelecionadaId} vinculada à Aeronave ${aeronaveSelecionadaId} com sucesso!`);
-    
-    
-    
-    setIsVincularModalOpen(false);
-    
-    setAeronaveSelecionadaId(mockAeronaves[0]?.id || '');
-    setPecaSelecionadaId(mockPecas[0]?.id || '');
+    try {
+      await axios.put(`http://localhost:3000/pecas/${pecaSelecionadaId}`, {
+        aeronaveId: aeronaveSelecionadaId
+      });
+      alert("Peça vinculada com sucesso!");
+      carregarDados();
+      setIsVincularModalOpen(false);
+      setAeronaveSelecionadaId('');
+      setPecaSelecionadaId('');
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao vincular peça.");
+    }
   };
-  // ------------------------------------------
+
+  // --- VISUALIZAR DETALHES (Lógica Nova) ---
+  const handleVisualizar = async (aeronaveId) => {
+    try {
+      const resposta = await axios.get(`http://localhost:3000/aeronaves/${aeronaveId}`);
+      setAeronaveDetalhes(resposta.data);
+      setIsVisualizarModalOpen(true);
+    } catch (error) {
+      console.error("Erro ao carregar detalhes:", error);
+      alert("Erro ao carregar detalhes da aeronave.");
+    }
+  };
 
   return (
     <div>
       <div className={styles.header}>
         <h1>Lista de Aeronaves</h1>
         <div className={styles.headerActions}>
-          <button 
-            className={styles.secondaryButton}
-            onClick={() => setIsVincularModalOpen(true)} 
-          >
+          <button className={styles.secondaryButton} onClick={() => setIsVincularModalOpen(true)}>
             Vincular Peça
           </button>
-          <button 
-            className={styles.primaryButton}
-            onClick={() => setIsRegistrarModalOpen(true)}
-          >
+          <button className={styles.primaryButton} onClick={() => setIsRegistrarModalOpen(true)}>
             Registrar Aeronave
           </button>
         </div>
       </div>
 
       <table className={styles.tabelaAeronaves}>
-        {}
         <thead>
           <tr>
             <th>Código</th>
             <th>Modelo</th>
             <th>Tipo</th>
             <th>Capacidade</th>
-            <th>Status</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
+          {listaDeAeronaves.length === 0 && <tr><td colSpan="5" align="center">Nenhuma aeronave cadastrada.</td></tr>}
           {listaDeAeronaves.map((aeronave) => (
             <tr key={aeronave.id}>
               <td>{aeronave.codigo}</td>
               <td>{aeronave.modelo}</td>
               <td>{aeronave.tipo}</td>
               <td>{aeronave.capacidade}</td>
-              <td>{aeronave.status}</td>
               <td>
-                <button 
-                  className={styles.actionButton}
-                  onClick={() => handleVisualizar(aeronave.id)}
-                >
+                <button className={styles.actionButton} onClick={() => handleVisualizar(aeronave.id)}>
                   Visualizar
                 </button>
               </td>
@@ -128,11 +149,10 @@ function AeronavesLista() {
         </tbody>
       </table>
 
-      {}
+      {/* Modal de Registro */}
       {isRegistrarModalOpen && (
         <Modal title="Registrar Nova Aeronave" onClose={() => setIsRegistrarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleRegistrarSubmit}>
-            {/* ... (formulário de registro, sem alteração) ... */}
             <div className={styles.formGroup}>
               <label htmlFor="codigo">Código (Único)</label>
               <input type="text" id="codigo" className={styles.formInput} value={novoCodigo} onChange={(e) => setNovoCodigo(e.target.value)} required />
@@ -149,70 +169,107 @@ function AeronavesLista() {
               </select>
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="capacidade">Capacidade (Passageiros)</label>
+              <label htmlFor="capacidade">Capacidade</label>
               <input type="number" id="capacidade" className={styles.formInput} value={novaCapacidade} onChange={(e) => setNovaCapacidade(e.target.value)} required />
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="alcance">Alcance (km)</label>
               <input type="number" id="alcance" className={styles.formInput} value={novoAlcance} onChange={(e) => setNovoAlcance(e.target.value)} required />
             </div>
-            <button type="submit" className={styles.modalSubmitButton}>
-              Salvar Aeronave
-            </button>
+            <button type="submit" className={styles.modalSubmitButton}>Salvar Aeronave</button>
           </form>
         </Modal>
       )}
 
-      {}
+      {/* Modal de Vínculo */}
       {isVincularModalOpen && (
-        <Modal title="Vincular Peça a uma Aeronave" onClose={() => setIsVincularModalOpen(false)}>
-          
-          <form className={styles.modalForm} onSubmit={handleVincularSubmit}>
-            
-            <div className={styles.formGroup}>
-              <label htmlFor="aeronaveSelect">Aeronave</label>
-              <select 
-                id="aeronaveSelect" 
-                className={styles.formSelect}
-                value={aeronaveSelecionadaId}
-                onChange={(e) => setAeronaveSelecionadaId(e.target.value)}
-              >
-                <option value="" disabled>Selecione uma aeronave</option>
-                {}
-                {listaDeAeronaves.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.codigo} ({a.modelo})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="pecaSelect">Peça (Disponível)</label>
-              <select 
-                id="pecaSelect" 
-                className={styles.formSelect}
-                value={pecaSelecionadaId}
-                onChange={(e) => setPecaSelecionadaId(e.target.value)}
-              >
-                <option value="" disabled>Selecione uma peça</option>
-                {}
-                {mockPecas.filter(p => p.status === 'PRONTA').map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} ({p.fornecedor})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {}
-            <button type="submit" className={styles.modalSubmitButton}>
-              Vincular Peça
-            </button>
-          </form>
-
+        <Modal title="Vincular Peça" onClose={() => setIsVincularModalOpen(false)}>
+           <form className={styles.modalForm} onSubmit={handleVincularSubmit}>
+             <div className={styles.formGroup}>
+               <label>Selecione a Aeronave</label>
+               <select 
+                  className={styles.formSelect} 
+                  value={aeronaveSelecionadaId} 
+                  onChange={(e) => setAeronaveSelecionadaId(e.target.value)}
+                  required
+               >
+                 <option value="" disabled>Escolha uma aeronave...</option>
+                 {listaDeAeronaves.map(a => (
+                   <option key={a.id} value={a.id}>{a.codigo} - {a.modelo}</option>
+                 ))}
+               </select>
+             </div>
+             <div className={styles.formGroup}>
+               <label>Selecione a Peça (Disponível)</label>
+               <select 
+                  className={styles.formSelect} 
+                  value={pecaSelecionadaId} 
+                  onChange={(e) => setPecaSelecionadaId(e.target.value)}
+                  required
+               >
+                 <option value="" disabled>Escolha uma peça...</option>
+                 {listaDePecasDisponiveis.length === 0 && <option disabled>Sem peças livres no estoque.</option>}
+                 {listaDePecasDisponiveis.map(p => (
+                   <option key={p.id} value={p.id}>{p.nome} ({p.status})</option>
+                 ))}
+               </select>
+             </div>
+             <button type="submit" className={styles.modalSubmitButton}>Confirmar Vínculo</button>
+           </form>
         </Modal>
       )}
+
+      {/* --- NOVO: MODAL DE DETALHES --- */}
+      {isVisualizarModalOpen && aeronaveDetalhes && (
+        <Modal title={`Detalhes: ${aeronaveDetalhes.codigo}`} onClose={() => setIsVisualizarModalOpen(false)}>
+          <div style={{ padding: '10px' }}>
+            <p><strong>Modelo:</strong> {aeronaveDetalhes.modelo}</p>
+            <p><strong>Tipo:</strong> {aeronaveDetalhes.tipo}</p>
+            <p><strong>Capacidade:</strong> {aeronaveDetalhes.capacidade} pax</p>
+            <p><strong>Alcance:</strong> {aeronaveDetalhes.alcance} km</p>
+            
+            <hr style={{margin: '15px 0', borderTop: '1px solid #eee'}} />
+            
+            <h3>Peças Vinculadas</h3>
+            {aeronaveDetalhes.pecas && aeronaveDetalhes.pecas.length > 0 ? (
+              <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
+                {aeronaveDetalhes.pecas.map(peca => (
+                  <li key={peca.id} style={{marginBottom: '5px'}}>
+                    <strong>{peca.nome}</strong> <span style={{fontSize: '0.9em', color: '#666'}}>({peca.status})</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ color: '#666', fontStyle: 'italic' }}>Nenhuma peça vinculada.</p>
+            )}
+
+            <hr style={{margin: '15px 0', borderTop: '1px solid #eee'}} />
+
+            <h3>Etapas de Produção</h3>
+            {aeronaveDetalhes.etapas && aeronaveDetalhes.etapas.length > 0 ? (
+              <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
+                {aeronaveDetalhes.etapas.map(etapa => (
+                  <li key={etapa.id} style={{marginBottom: '5px'}}>
+                    {etapa.nome} - <strong>{etapa.status}</strong>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ color: '#666', fontStyle: 'italic' }}>Nenhuma etapa registrada.</p>
+            )}
+
+            <div style={{ marginTop: '20px', textAlign: 'right' }}>
+              <button 
+                className={styles.secondaryButton} 
+                onClick={() => setIsVisualizarModalOpen(false)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
     </div>
   );
 }

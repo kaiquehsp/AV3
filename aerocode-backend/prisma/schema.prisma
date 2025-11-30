@@ -1,0 +1,121 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// --- ENUMS ---
+
+enum TipoAeronave {
+  COMERCIAL
+  MILITAR
+}
+
+enum TipoPeca {
+  NACIONAL
+  IMPORTADA
+}
+
+enum StatusPeca {
+  EM_PRODUCAO
+  EM_TRANSPORTE
+  PRONTA
+}
+
+enum StatusEtapa {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+}
+
+enum NivelPermissao {
+  ADMINISTRADOR
+  ENGENHEIRO
+  OPERADOR
+}
+
+enum TipoTeste {
+  ELETRICO
+  HIDRAULICO
+  AERODINAMICO
+}
+
+enum ResultadoTeste {
+  APROVADO
+  REPROVADO
+}
+
+// --- MODELOS ---
+
+model Aeronave {
+  id          String       @id @default(uuid())
+  codigo      String       @unique
+  modelo      String
+  tipo        TipoAeronave
+  capacidade  Int
+  alcance     Int
+  
+  pecas       Peca[]
+  etapas      Etapa[]
+  testes      Teste[]
+  relatorios  Relatorio[]
+}
+
+model Peca {
+  id          String     @id @default(uuid())
+  nome        String
+  tipo        TipoPeca
+  fornecedor  String
+  status      StatusPeca
+  
+  aeronaveId  String?
+  aeronave    Aeronave?  @relation(fields: [aeronaveId], references: [id])
+}
+
+model Funcionario {
+  id             String         @id @default(uuid())
+  nome           String
+  telefone       String
+  endereco       String
+  usuario        String         @unique
+  senha          String
+  nivelPermissao NivelPermissao
+  
+  etapas         Etapa[]        @relation("EtapasFuncionarios")
+}
+
+model Etapa {
+  id           String      @id @default(uuid())
+  nome         String
+  prazo        DateTime
+  status       StatusEtapa
+  
+  aeronaveId   String
+  aeronave     Aeronave    @relation(fields: [aeronaveId], references: [id])
+  
+  funcionarios Funcionario[] @relation("EtapasFuncionarios")
+}
+
+model Teste {
+  id          String         @id @default(uuid())
+  tipo        TipoTeste
+  resultado   ResultadoTeste
+  data        DateTime       @default(now())
+  
+  aeronaveId  String
+  aeronave    Aeronave       @relation(fields: [aeronaveId], references: [id])
+}
+
+model Relatorio {
+  id          String   @id @default(uuid())
+  dataGeracao DateTime @default(now())
+  conteudo    String   @db.Text 
+  
+  aeronaveId  String
+  aeronave    Aeronave @relation(fields: [aeronaveId], references: [id])
+}

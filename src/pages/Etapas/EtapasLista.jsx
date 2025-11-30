@@ -1,110 +1,143 @@
-import React, { useState } from 'react';
-import { mockEtapas } from '../../data/mockEtapas';
+// src/pages/Etapas/EtapasLista.jsx
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import styles from './EtapasLista.module.css';
 import Modal from '../../components/Modal/Modal.jsx';
 
-
-import { mockFuncionarios } from '../../data/mockFuncionarios';
-
 function EtapasLista() {
-  const [listaDeEtapas, setListaDeEtapas] = useState(mockEtapas);
+  // Listas de dados
+  const [listaDeEtapas, setListaDeEtapas] = useState([]);
+  const [listaDeAeronaves, setListaDeAeronaves] = useState([]);
+  const [listaDeFuncionarios, setListaDeFuncionarios] = useState([]);
   
+  // Modais
   const [isCadastrarModalOpen, setIsCadastrarModalOpen] = useState(false);
-  const [isAlocarModalOpen, setIsAlocarModalOpen] = useState(false); // Este modal
+  const [isAlocarModalOpen, setIsAlocarModalOpen] = useState(false);
+  
+  // --- NOVO: Estado para Visualização ---
+  const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
+  const [etapaDetalhes, setEtapaDetalhes] = useState(null);
 
-
+  // Estados Cadastro Etapa
   const [novoNome, setNovoNome] = useState('');
   const [novoPrazo, setNovoPrazo] = useState('');
+  const [novaAeronaveId, setNovaAeronaveId] = useState('');
 
- 
-  const [etapaSelecionadaId, setEtapaSelecionadaId] = useState(mockEtapas[0]?.id || '');
-  const [funcionarioSelecionadoId, setFuncionarioSelecionadoId] = useState(mockFuncionarios[0]?.id || '');
+  // Estados Alocação
+  const [etapaSelecionadaId, setEtapaSelecionadaId] = useState('');
+  const [funcionarioSelecionadoId, setFuncionarioSelecionadoId] = useState('');
 
+  // --- CARREGAR DADOS ---
+  useEffect(() => {
+    carregarDados();
+  }, []);
 
-  const handleVisualizar = (etapaId) => {
-    alert(`Visualizando detalhes da etapa: ${etapaId}`);
+  const carregarDados = async () => {
+    try {
+      const [resEtapas, resAeronaves, resFuncionarios] = await Promise.all([
+        axios.get('http://localhost:3000/etapas'),
+        axios.get('http://localhost:3000/aeronaves'),
+        axios.get('http://localhost:3000/funcionarios')
+      ]);
+
+      setListaDeEtapas(resEtapas.data);
+      setListaDeAeronaves(resAeronaves.data);
+      setListaDeFuncionarios(resFuncionarios.data);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+    }
   };
 
-  const handleCadastrarSubmit = (e) => {
-    e.preventDefault();
-    const novaEtapa = {
-      id: `E-${(listaDeEtapas.length + 1).toString().padStart(3, '0')}`,
-      nome: novoNome,
-      prazo: novoPrazo,
-      status: 'PENDENTE',
-      funcionariosAlocados: []
-    };
-    setListaDeEtapas([novaEtapa, ...listaDeEtapas]);
-    setIsCadastrarModalOpen(false);
-    setNovoNome('');
-    setNovoPrazo('');
+  // --- NOVO: HANDLE VISUALIZAR ---
+  const handleVisualizar = async (etapaId) => {
+    try {
+      const res = await axios.get(`http://localhost:3000/etapas/${etapaId}`);
+      setEtapaDetalhes(res.data);
+      setIsVisualizarModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao carregar detalhes da etapa.");
+    }
   };
 
-  
-  const handleAlocarSubmit = (e) => {
+  // --- CADASTRAR NOVA ETAPA ---
+  const handleCadastrarSubmit = async (e) => {
     e.preventDefault();
-    if (!etapaSelecionadaId || !funcionarioSelecionadoId) {
-      alert('Por favor, selecione uma etapa e um funcionário.');
+
+    if (!novaAeronaveId) {
+      alert("É necessário selecionar uma Aeronave para criar uma etapa.");
       return;
     }
 
-   
-    alert(`Funcionário ${funcionarioSelecionadoId} alocado à Etapa ${etapaSelecionadaId} com sucesso!`);
-    
-   
-    
-    setIsAlocarModalOpen(false);
-    
-    setEtapaSelecionadaId(mockEtapas[0]?.id || '');
-    setFuncionarioSelecionadoId(mockFuncionarios[0]?.id || '');
+    try {
+      const novaEtapa = {
+        nome: novoNome,
+        prazo: novoPrazo,
+        status: 'PENDENTE',
+        aeronaveId: novaAeronaveId
+      };
+
+      await axios.post('http://localhost:3000/etapas', novaEtapa);
+      
+      alert("Etapa cadastrada com sucesso!");
+      carregarDados();
+
+      setIsCadastrarModalOpen(false);
+      setNovoNome('');
+      setNovoPrazo('');
+      setNovaAeronaveId('');
+
+    } catch (error) {
+      console.error("Erro ao criar etapa:", error);
+      alert("Erro ao criar etapa. Verifique os dados.");
+    }
   };
- 
+
+  // --- ALOCAR FUNCIONÁRIO ---
+  const handleAlocarSubmit = (e) => {
+    e.preventDefault();
+    // (Lógica simplificada pois precisaria de uma tabela M:N no backend para funcionar 100%)
+    alert(`Simulação: Funcionário ${funcionarioSelecionadoId} alocado à Etapa ${etapaSelecionadaId}!`);
+    setIsAlocarModalOpen(false);
+  };
 
   return (
     <div>
       <div className={styles.header}>
         <h1>Lista de Etapas da Produção</h1>
         <div className={styles.headerActions}>
-          <button 
-            className={styles.secondaryButton}
-            onClick={() => setIsAlocarModalOpen(true)} 
-          >
+          <button className={styles.secondaryButton} onClick={() => setIsAlocarModalOpen(true)}>
             Alocar Funcionário
           </button>
-          <button 
-            className={styles.primaryButton}
-            onClick={() => setIsCadastrarModalOpen(true)}
-          >
+          <button className={styles.primaryButton} onClick={() => setIsCadastrarModalOpen(true)}>
             Cadastrar Etapa
           </button>
         </div>
       </div>
 
       <table className={styles.tabelaEtapas}>
-        {}
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nome da Etapa</th>
+            <th>Aeronave</th>
             <th>Prazo</th>
             <th>Status</th>
-            <th>Funcionários Alocados</th>
+            <th>Equipe</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
+          {listaDeEtapas.length === 0 && <tr><td colSpan="6" align="center">Nenhuma etapa cadastrada.</td></tr>}
           {listaDeEtapas.map((etapa) => (
             <tr key={etapa.id}>
-              <td>{etapa.id}</td>
               <td>{etapa.nome}</td>
-              <td>{etapa.prazo}</td>
+              <td>{etapa.aeronave ? etapa.aeronave.codigo : 'N/A'}</td>
+              <td>{new Date(etapa.prazo).toLocaleDateString()}</td>
               <td>{etapa.status}</td>
-              <td>{etapa.funcionariosAlocados.length}</td>
+              <td>{etapa.funcionarios ? etapa.funcionarios.length : 0}</td>
               <td>
-                <button 
-                  className={styles.actionButton}
-                  onClick={() => handleVisualizar(etapa.id)}
-                >
+                <button className={styles.actionButton} onClick={() => handleVisualizar(etapa.id)}>
                   Visualizar
                 </button>
               </td>
@@ -113,78 +146,94 @@ function EtapasLista() {
         </tbody>
       </table>
 
-      {}
+      {/* MODAL CADASTRAR ETAPA */}
       {isCadastrarModalOpen && (
         <Modal title="Cadastrar Nova Etapa" onClose={() => setIsCadastrarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleCadastrarSubmit}>
-            {}
             <div className={styles.formGroup}>
               <label htmlFor="nome">Nome da Etapa</label>
-              <input type="text" id="nome" className={styles.formInput} placeholder="Ex: Montagem das Asas (AC-004)" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} required />
+              <input type="text" id="nome" className={styles.formInput} placeholder="Ex: Montagem das Asas" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} required />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="prazo">Prazo para Conclusão</label>
+              <label htmlFor="aeronave">Aeronave Vinculada</label>
+              <select id="aeronave" className={styles.formSelect} value={novaAeronaveId} onChange={(e) => setNovaAeronaveId(e.target.value)} required>
+                <option value="" disabled>Selecione uma aeronave...</option>
+                {listaDeAeronaves.map(a => (
+                  <option key={a.id} value={a.id}>{a.codigo} - {a.modelo}</option>
+                ))}
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="prazo">Prazo</label>
               <input type="date" id="prazo" className={styles.formInput} value={novoPrazo} onChange={(e) => setNovoPrazo(e.target.value)} required />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="status">Status Inicial</label>
-              <input type="text" id="status" className={styles.formInput} value="PENDENTE" disabled />
+              <label>Status Inicial</label>
+              <input type="text" className={styles.formInput} value="PENDENTE" disabled />
             </div>
-            <button type="submit" className={styles.modalSubmitButton}>
-              Salvar Etapa
-            </button>
+            <button type="submit" className={styles.modalSubmitButton}>Salvar Etapa</button>
           </form>
         </Modal>
       )}
 
-      {}
+      {/* MODAL ALOCAR FUNCIONÁRIO */}
       {isAlocarModalOpen && (
-        <Modal title="Alocar Funcionário a uma Etapa" onClose={() => setIsAlocarModalOpen(false)}>
-          
+        <Modal title="Alocar Funcionário" onClose={() => setIsAlocarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleAlocarSubmit}>
-            
             <div className={styles.formGroup}>
-              <label htmlFor="etapaSelect">Etapa (em andamento ou pendente)</label>
-              <select 
-                id="etapaSelect" 
-                className={styles.formSelect}
-                value={etapaSelecionadaId}
-                onChange={(e) => setEtapaSelecionadaId(e.target.value)}
-              >
-                <option value="" disabled>Selecione uma etapa</option>
-                {}
-                {listaDeEtapas.filter(e => e.status !== 'CONCLUIDA').map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.nome}
-                  </option>
+              <label>Etapa</label>
+              <select className={styles.formSelect} value={etapaSelecionadaId} onChange={(e) => setEtapaSelecionadaId(e.target.value)}>
+                <option value="" disabled>Selecione a etapa...</option>
+                {listaDeEtapas.map(e => (
+                  <option key={e.id} value={e.id}>{e.nome}</option>
                 ))}
               </select>
             </div>
-
             <div className={styles.formGroup}>
-              <label htmlFor="funcionarioSelect">Funcionário (Engenheiro ou Operador)</label>
-              <select 
-                id="funcionarioSelect" 
-                className={styles.formSelect}
-                value={funcionarioSelecionadoId}
-                onChange={(e) => setFuncionarioSelecionadoId(e.target.value)}
-              >
-                <option value="" disabled>Selecione um funcionário</option>
-                {}
-                {mockFuncionarios.filter(f => f.nivelPermissao !== 'ADMINISTRADOR').map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nome} ({f.nivelPermissao})
-                  </option>
+              <label>Funcionário</label>
+              <select className={styles.formSelect} value={funcionarioSelecionadoId} onChange={(e) => setFuncionarioSelecionadoId(e.target.value)}>
+                <option value="" disabled>Selecione o funcionário...</option>
+                {listaDeFuncionarios.map(f => (
+                  <option key={f.id} value={f.id}>{f.nome}</option>
                 ))}
               </select>
             </div>
-
-            {}
-            <button type="submit" className={styles.modalSubmitButton}>
-              Alocar Funcionário
-            </button>
+            <button type="submit" className={styles.modalSubmitButton}>Alocar</button>
           </form>
+        </Modal>
+      )}
 
+      {/* --- NOVO: MODAL VISUALIZAR ETAPA --- */}
+      {isVisualizarModalOpen && etapaDetalhes && (
+        <Modal title={`Etapa: ${etapaDetalhes.nome}`} onClose={() => setIsVisualizarModalOpen(false)}>
+          <div style={{ padding: '10px' }}>
+            <p><strong>Prazo:</strong> {new Date(etapaDetalhes.prazo).toLocaleDateString()}</p>
+            <p><strong>Status:</strong> {etapaDetalhes.status}</p>
+            <p><strong>Aeronave:</strong> {etapaDetalhes.aeronave?.codigo} ({etapaDetalhes.aeronave?.modelo})</p>
+            
+            <hr style={{margin: '15px 0', borderTop: '1px solid #eee'}} />
+            
+            <h3>Equipe Alocada</h3>
+            {etapaDetalhes.funcionarios && etapaDetalhes.funcionarios.length > 0 ? (
+              <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
+                {etapaDetalhes.funcionarios.map(func => (
+                  <li key={func.id}>{func.nome} ({func.nivelPermissao})</li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{color: '#666', fontStyle: 'italic'}}>Nenhum funcionário alocado.</p>
+            )}
+
+            <div style={{ marginTop: '20px', textAlign: 'right' }}>
+                <button 
+                  className={styles.secondaryButton} 
+                  style={{backgroundColor: '#6c757d', color: 'white', padding: '8px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
+                  onClick={() => setIsVisualizarModalOpen(false)}
+                >
+                  Fechar
+                </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
