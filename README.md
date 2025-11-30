@@ -1,66 +1,108 @@
-# ✈️ Aerocode — Sistema de Gestão da Produção (GUI)
+# ✈️ Aerocode — Sistema de Gestão da Produção 
 
-## Protótipo de Interface Gráfica (SPA) em React
+## Aplicação Web Completa com React, Node.js e MySQL
 
-Bem-vindo ao repositório da nova interface gráfica (GUI) da Aerocode. Este projeto é um protótipo navegável de alta fidelidade, construído no formato **SPA (Single Page Application)**, utilizando **React** e **Vite**.
+Bem-vindo ao repositório oficial do **Aerocode Web**, desenvolvido como requisito final da avaliação **AV3**.
+
+Este projeto consiste na evolução do sistema para uma **Aplicação Web Full Stack** robusta, focada no gerenciamento crítico da produção de aeronaves. O sistema utiliza uma arquitetura moderna com **React** no Front-end e **Node.js** no Back-end, garantindo persistência de dados em banco **MySQL**.
 
 ---
 
 ## 🔍 Visão Geral
 
-Esta aplicação é a evolução do sistema CLI original (desenvolvido na AV1). O objetivo principal foi substituir a interface de linha de comando por uma plataforma visual moderna, intuitiva e de alta performance, visando reduzir a curva de aprendizado dos engenheiros e preparar o produto para ser apresentado a grandes clientes do setor aeroespacial.
+A aplicação foi projetada para atender aos requisitos de qualidade e performance de grandes clientes do setor aeroespacial. Ela substitui protótipos anteriores por um sistema real, conectado a um banco de dados, capaz de gerenciar todo o ciclo de vida de produção, desde o cadastro de funcionários até a entrega final da aeronave.
 
-O protótipo é focado inteiramente no **front-end**, utilizando dados "mock" (falsos) para simular a interação, sem depender de um back-end.
+O projeto inclui tanto o **Front-end** (interface do usuário) quanto o **Back-end** (API e Banco de Dados), além de scripts de teste de carga para validação de performance.
 
 ---
 
 ## 🧩 Funcionalidades Implementadas
 
-A interface implementa visualmente todas as regras de negócio definidas na AV1, organizadas da seguinte forma:
+O sistema implementa todas as regras de negócio e fluxos operacionais, organizados da seguinte forma:
 
 * **Fluxo de Autenticação:**
-    * Tela de **Login** para usuários existentes.
-    * Tela de **Registro** (rota `/registro`) para simular a criação do primeiro Administrador do sistema.
+    * Tela de **Login** para acesso seguro ao sistema.
+    * Tela de **Registro** (rota oculta `/registro`) para a criação do primeiro Administrador.
 
 * **Dashboard Principal:**
-    * Página inicial (com imagem "Hero") após o login, com navegação central para todos os módulos.
-    * Menu de navegação persistente (Layout) que destaca a página ativa.
+    * Painel central com acesso rápido a todos os módulos do sistema.
+    * Navegação persistente e responsiva.
 
-* **Gestão de Módulos (CRUD):**
-    * **Testes:** Listagem e modal para "Cadastrar Teste".
-    * **Relatórios:** Página dedicada para a ação de "Gerar Relatório".
-    * **Aeronaves:** Listagem e modais para "Registrar Aeronave" e "Vincular Peça".
-    * **Funcionários:** Listagem e modal para "Cadastrar Funcionário" (função do Admin).
-    * **Etapas:** Listagem e modais para "Cadastrar Etapa" e "Alocar Funcionário".
-    * **Peças:** Listagem e modal para "Cadastrar Peça".
+* **Gestão Completa (CRUD com Banco de Dados):**
+    * **Aeronaves:** Cadastro, listagem, visualização detalhada e vínculo com peças.
+    * **Peças:** Gestão de inventário e status de peças (Nacional/Importada).
+    * **Funcionários:** Cadastro de equipe (Engenheiros, Operadores) e controle de permissões.
+    * **Etapas:** Definição do fluxo de produção e alocação de funcionários responsáveis.
+    * **Testes:** Registro de resultados de testes (Elétrico, Hidráulico, Aerodinâmico).
+
+* **Relatórios e Qualidade:**
+    * **Gerador de Relatórios:** Exportação automática de um arquivo `.txt` contendo o histórico completo da aeronave.
+    * **Testes de Carga:** Scripts automatizados para medir latência e tempo de resposta sob carga (1, 5 e 10 usuários).
 
 ---
 
 ## 🛠️ Tecnologias
 
-* **React** — Biblioteca principal para a construção da interface de usuário.
-* **Vite** — Ferramenta de build e servidor de desenvolvimento de alta performance.
-* **React Router DOM** — Para a navegação e gerenciamento das rotas da SPA.
-* **CSS Modules** — Para estilização escopada e organizada de cada componente.
+* **Front-end:**
+    * **React** (Vite) — Interface de usuário rápida e moderna.
+    * **Axios** — Comunicação HTTP com o servidor.
+    * **CSS Modules** — Estilização organizada e escopada.
+
+* **Back-end:**
+    * **Node.js** & **TypeScript** — Servidor robusto e tipado.
+    * **Express** — Framework para criação da API REST.
+    * **Prisma ORM** — Gerenciamento eficiente do banco de dados.
+    * **MySQL** — Banco de dados relacional para persistência segura.
 
 ---
 
 ## ✅ Pré-requisitos
 
-* Node.js (versão 18.x ou superior)
-* NPM (ou Yarn)
+Para executar o projeto, certifique-se de ter instalado:
+* **Node.js** (Versão 18 ou superior).
+* **MySQL** (Serviço rodando, ex: via XAMPP ou Workbench).
+* **Git**.
 
-## 🚀 Guia de inicialização:
+---
+
+## 🚀 Guia de Inicialização
+
+Siga a ordem abaixo para configurar o ambiente completo (Back-end e Front-end).
+
+### Passo 1: Configurar o Back-end
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/kaiquehsp/AV2.git
+git clone https://github.com/kaiquehsp/AV3.git
 
-# 2. Entre no diretório do projeto
-cd AV2
+# 2. Entre na pasta do servidor
+cd AV3/aerocode-backend
 
 # 3. Instale as dependências
 npm install
 
-# 4. Inicie o servidor de desenvolvimento
+# 4. Configure o Banco de Dados
+# Crie um arquivo .env na pasta 'aerocode-backend' e adicione sua conexão MySQL:
+# DATABASE_URL="mysql://root:SUA_SENHA@localhost:3306/aerocode"
+
+# 5. Prepare o MySQL (Importante!)
+# Abra seu gerenciador de banco de dados (Workbench/DBeaver) e crie um banco vazio:
+# CREATE DATABASE aerocode;
+
+# 6. Crie as tabelas no banco
+npx prisma migrate dev --name init
+
+# 7. Inicie o servidor
 npm run dev
+
+### Passo 2: Configurar o Front-end
+
+# 1.  Abrir outro CMD e instalar as dependencias da raiz
+npm install
+
+# 2. Iniciar o Front-End
+npm run dev
+
+# 3. Acessar o servidor
+
+
