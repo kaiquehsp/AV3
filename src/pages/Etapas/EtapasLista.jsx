@@ -95,11 +95,33 @@ function EtapasLista() {
   };
 
  
-  const handleAlocarSubmit = (e) => {
+  const handleAlocarSubmit = async (e) => {
     e.preventDefault();
-   
-    alert(`Simulação: Funcionário ${funcionarioSelecionadoId} alocado à Etapa ${etapaSelecionadaId}!`);
-    setIsAlocarModalOpen(false);
+    
+    if (!etapaSelecionadaId || !funcionarioSelecionadoId) {
+      alert("Selecione a etapa e o funcionário.");
+      return;
+    }
+
+    try {
+      // Chama a nova rota que criamos
+      await axios.put(`http://localhost:3000/etapas/${etapaSelecionadaId}/alocar`, {
+        funcionarioId: funcionarioSelecionadoId
+      });
+
+      alert("Funcionário alocado com sucesso!");
+      
+      // ATUALIZA A TELA para mostrar o novo número de equipe
+      carregarDados(); 
+      
+      setIsAlocarModalOpen(false);
+      setEtapaSelecionadaId('');
+      setFuncionarioSelecionadoId('');
+
+    } catch (error) {
+      console.error("Erro ao alocar:", error);
+      alert("Erro ao alocar funcionário. Verifique se ele já não está nessa etapa.");
+    }
   };
 
   return (
