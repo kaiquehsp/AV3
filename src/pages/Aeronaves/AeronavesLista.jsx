@@ -8,28 +8,28 @@ import Modal from '../../components/Modal/Modal.jsx';
 function AeronavesLista() {
   const [listaDeAeronaves, setListaDeAeronaves] = useState([]);
   
-  // Precisamos carregar as peças para o modal de vínculo
+  
   const [listaDePecasDisponiveis, setListaDePecasDisponiveis] = useState([]); 
 
   const [isRegistrarModalOpen, setIsRegistrarModalOpen] = useState(false);
   const [isVincularModalOpen, setIsVincularModalOpen] = useState(false);
   
-  // --- NOVO: Estado para o modal de Visualizar Detalhes ---
+  
   const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
   const [aeronaveDetalhes, setAeronaveDetalhes] = useState(null);
 
-  // Estados do formulário Cadastro Aeronave
+  
   const [novoCodigo, setNovoCodigo] = useState('');
   const [novoModelo, setNovoModelo] = useState('');
   const [novoTipo, setNovoTipo] = useState('COMERCIAL');
   const [novaCapacidade, setNovaCapacidade] = useState(0);
   const [novoAlcance, setNovoAlcance] = useState(0);
 
-  // Estados do formulário Vínculo
+  
   const [aeronaveSelecionadaId, setAeronaveSelecionadaId] = useState('');
   const [pecaSelecionadaId, setPecaSelecionadaId] = useState('');
 
-  // --- CARREGAR DADOS ---
+  
   useEffect(() => {
     carregarDados();
   }, []);
@@ -43,7 +43,7 @@ function AeronavesLista() {
 
       setListaDeAeronaves(resAeronaves.data);
 
-      // Filtra peças livres
+      
       const pecasLivres = resPecas.data.filter(p => !p.aeronaveId);
       setListaDePecasDisponiveis(pecasLivres);
 
@@ -52,7 +52,7 @@ function AeronavesLista() {
     }
   };
 
-  // --- REGISTRAR AERONAVE ---
+  
   const handleRegistrarSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -73,7 +73,7 @@ function AeronavesLista() {
     }
   };
 
-  // --- VINCULAR PEÇA ---
+  
   const handleVincularSubmit = async (e) => {
     e.preventDefault();
     if (!aeronaveSelecionadaId || !pecaSelecionadaId) {
@@ -95,7 +95,7 @@ function AeronavesLista() {
     }
   };
 
-  // --- VISUALIZAR DETALHES (Lógica Nova) ---
+  
   const handleVisualizar = async (aeronaveId) => {
     try {
       const resposta = await axios.get(`http://localhost:3000/aeronaves/${aeronaveId}`);
@@ -149,7 +149,7 @@ function AeronavesLista() {
         </tbody>
       </table>
 
-      {/* Modal de Registro */}
+      {}
       {isRegistrarModalOpen && (
         <Modal title="Registrar Nova Aeronave" onClose={() => setIsRegistrarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleRegistrarSubmit}>
@@ -181,7 +181,7 @@ function AeronavesLista() {
         </Modal>
       )}
 
-      {/* Modal de Vínculo */}
+      {}
       {isVincularModalOpen && (
         <Modal title="Vincular Peça" onClose={() => setIsVincularModalOpen(false)}>
            <form className={styles.modalForm} onSubmit={handleVincularSubmit}>
@@ -219,7 +219,7 @@ function AeronavesLista() {
         </Modal>
       )}
 
-      {/* --- NOVO: MODAL DE DETALHES --- */}
+      {}
       {isVisualizarModalOpen && aeronaveDetalhes && (
         <Modal title={`Detalhes: ${aeronaveDetalhes.codigo}`} onClose={() => setIsVisualizarModalOpen(false)}>
           <div style={{ padding: '10px' }}>

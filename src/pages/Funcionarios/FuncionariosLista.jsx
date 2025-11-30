@@ -9,11 +9,11 @@ function FuncionariosLista() {
   const [listaDeFuncionarios, setListaDeFuncionarios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- NOVO: Estado para Visualização ---
+ 
   const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
   const [funcionarioDetalhes, setFuncionarioDetalhes] = useState(null);
 
-  // Estados do formulário
+  
   const [novoNome, setNovoNome] = useState('');
   const [novoTelefone, setNovoTelefone] = useState('');
   const [novoEndereco, setNovoEndereco] = useState('');
@@ -21,7 +21,7 @@ function FuncionariosLista() {
   const [novaSenha, setNovaSenha] = useState('');
   const [novoNivel, setNovoNivel] = useState('OPERADOR');
 
-  // --- BUSCAR (GET) ---
+  
   useEffect(() => {
     carregarFuncionarios();
   }, []);
@@ -35,7 +35,7 @@ function FuncionariosLista() {
     }
   };
 
-  // --- NOVO: HANDLE VISUALIZAR (Busca dados completos) ---
+  
   const handleVisualizar = async (funcionarioId) => {
     try {
       const res = await axios.get(`http://localhost:3000/funcionarios/${funcionarioId}`);
@@ -47,7 +47,7 @@ function FuncionariosLista() {
     }
   };
 
-  // --- SALVAR (POST) ---
+  
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -115,7 +115,7 @@ function FuncionariosLista() {
         </tbody>
       </table>
 
-      {/* MODAL DE CADASTRO */}
+      {}
       {isModalOpen && (
         <Modal title="Cadastrar Novo Funcionário" onClose={() => setIsModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleFormSubmit}>
@@ -153,7 +153,7 @@ function FuncionariosLista() {
         </Modal>
       )}
 
-      {/* --- NOVO: MODAL DE VISUALIZAÇÃO --- */}
+      {}
       {isVisualizarModalOpen && funcionarioDetalhes && (
         <Modal title={`Funcionário: ${funcionarioDetalhes.nome}`} onClose={() => setIsVisualizarModalOpen(false)}>
           <div style={{ padding: '10px' }}>

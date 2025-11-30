@@ -6,29 +6,29 @@ import styles from './EtapasLista.module.css';
 import Modal from '../../components/Modal/Modal.jsx';
 
 function EtapasLista() {
-  // Listas de dados
+  
   const [listaDeEtapas, setListaDeEtapas] = useState([]);
   const [listaDeAeronaves, setListaDeAeronaves] = useState([]);
   const [listaDeFuncionarios, setListaDeFuncionarios] = useState([]);
   
-  // Modais
+  
   const [isCadastrarModalOpen, setIsCadastrarModalOpen] = useState(false);
   const [isAlocarModalOpen, setIsAlocarModalOpen] = useState(false);
   
-  // --- NOVO: Estado para Visualização ---
+  
   const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
   const [etapaDetalhes, setEtapaDetalhes] = useState(null);
 
-  // Estados Cadastro Etapa
+ 
   const [novoNome, setNovoNome] = useState('');
   const [novoPrazo, setNovoPrazo] = useState('');
   const [novaAeronaveId, setNovaAeronaveId] = useState('');
 
-  // Estados Alocação
+  
   const [etapaSelecionadaId, setEtapaSelecionadaId] = useState('');
   const [funcionarioSelecionadoId, setFuncionarioSelecionadoId] = useState('');
 
-  // --- CARREGAR DADOS ---
+ 
   useEffect(() => {
     carregarDados();
   }, []);
@@ -49,7 +49,7 @@ function EtapasLista() {
     }
   };
 
-  // --- NOVO: HANDLE VISUALIZAR ---
+  
   const handleVisualizar = async (etapaId) => {
     try {
       const res = await axios.get(`http://localhost:3000/etapas/${etapaId}`);
@@ -61,7 +61,7 @@ function EtapasLista() {
     }
   };
 
-  // --- CADASTRAR NOVA ETAPA ---
+  
   const handleCadastrarSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,10 +94,10 @@ function EtapasLista() {
     }
   };
 
-  // --- ALOCAR FUNCIONÁRIO ---
+ 
   const handleAlocarSubmit = (e) => {
     e.preventDefault();
-    // (Lógica simplificada pois precisaria de uma tabela M:N no backend para funcionar 100%)
+   
     alert(`Simulação: Funcionário ${funcionarioSelecionadoId} alocado à Etapa ${etapaSelecionadaId}!`);
     setIsAlocarModalOpen(false);
   };
@@ -146,7 +146,7 @@ function EtapasLista() {
         </tbody>
       </table>
 
-      {/* MODAL CADASTRAR ETAPA */}
+      {}
       {isCadastrarModalOpen && (
         <Modal title="Cadastrar Nova Etapa" onClose={() => setIsCadastrarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleCadastrarSubmit}>
@@ -176,7 +176,7 @@ function EtapasLista() {
         </Modal>
       )}
 
-      {/* MODAL ALOCAR FUNCIONÁRIO */}
+      {}
       {isAlocarModalOpen && (
         <Modal title="Alocar Funcionário" onClose={() => setIsAlocarModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleAlocarSubmit}>
@@ -203,7 +203,7 @@ function EtapasLista() {
         </Modal>
       )}
 
-      {/* --- NOVO: MODAL VISUALIZAR ETAPA --- */}
+      {}
       {isVisualizarModalOpen && etapaDetalhes && (
         <Modal title={`Etapa: ${etapaDetalhes.nome}`} onClose={() => setIsVisualizarModalOpen(false)}>
           <div style={{ padding: '10px' }}>

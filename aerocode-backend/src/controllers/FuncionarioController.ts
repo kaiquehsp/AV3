@@ -5,13 +5,11 @@ import prisma from '../prisma';
 
 export class FuncionarioController {
   
-  // Listar todos
   async listar(req: Request, res: Response) {
     const funcionarios = await prisma.funcionario.findMany();
     return res.json(funcionarios);
   }
 
-  // Criar novo
   async criar(req: Request, res: Response) {
     const { nome, telefone, endereco, usuario, senha, nivelPermissao } = req.body;
     try {
@@ -24,13 +22,11 @@ export class FuncionarioController {
     }
   }
 
-  // --- NOVO: BUSCAR POR ID (Visualizar) ---
   async buscarPorId(req: Request, res: Response) {
     const { id } = req.params;
     try {
       const funcionario = await prisma.funcionario.findUnique({
         where: { id },
-        // Inclui as etapas onde ele trabalha para mostrar no modal
         include: { etapas: true } 
       });
 

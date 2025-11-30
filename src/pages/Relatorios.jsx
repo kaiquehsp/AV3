@@ -8,7 +8,7 @@ function Relatorios() {
   const [listaDeAeronaves, setListaDeAeronaves] = useState([]);
   const [aeronaveSelecionada, setAeronaveSelecionada] = useState('');
 
-  // 1. Carrega as aeronaves para o usuário escolher
+  
   useEffect(() => {
     async function carregar() {
       try {
@@ -21,7 +21,7 @@ function Relatorios() {
     carregar();
   }, []);
 
-  // 2. Lógica para gerar e baixar o arquivo .TXT
+  
   const handleGerarRelatorio = async () => {
     if (!aeronaveSelecionada) {
       alert("Selecione uma aeronave primeiro.");
@@ -29,11 +29,11 @@ function Relatorios() {
     }
 
     try {
-      // Busca os dados COMPLETOS (com peças, etapas e testes)
+     
       const res = await axios.get(`http://localhost:3000/aeronaves/${aeronaveSelecionada}`);
       const dados = res.data;
 
-      // Monta o conteúdo do arquivo de texto
+      
       let conteudo = `=== RELATÓRIO FINAL DE PRODUÇÃO ===\n`;
       conteudo += `Data de Emissão: ${new Date().toLocaleString()}\n\n`;
       
@@ -81,12 +81,12 @@ function Relatorios() {
         conteudo += `- Nenhum teste realizado.\n`;
       }
 
-      // Cria um "Blob" (arquivo na memória)
+      
       const element = document.createElement("a");
       const file = new Blob([conteudo], {type: 'text/plain'});
       element.href = URL.createObjectURL(file);
-      element.download = `Relatorio_${dados.codigo}.txt`; // Nome do arquivo
-      document.body.appendChild(element); // Necessário para Firefox
+      element.download = `Relatorio_${dados.codigo}.txt`; 
+      document.body.appendChild(element); 
       element.click();
       document.body.removeChild(element);
 
@@ -118,7 +118,7 @@ function Relatorios() {
       <button 
         className={styles.reportButton}
         onClick={handleGerarRelatorio}
-        disabled={!aeronaveSelecionada} // Desabilita se não escolher aeronave
+        disabled={!aeronaveSelecionada} 
       >
         Baixar Relatório .TXT
       </button>

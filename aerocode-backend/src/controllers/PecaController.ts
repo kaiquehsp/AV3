@@ -5,16 +5,16 @@ import prisma from '../prisma';
 
 export class PecaController {
   
-  // LISTAR todas as peças
+  
   async listar(req: Request, res: Response) {
-    // Inclui a aeronave na resposta para saber se a peça já está vinculada
+    
     const pecas = await prisma.peca.findMany({
       include: { aeronave: true }
     });
     return res.json(pecas);
   }
 
-  // CRIAR uma nova peça
+ 
   async criar(req: Request, res: Response) {
     const { nome, tipo, fornecedor, status } = req.body;
     try {
@@ -27,10 +27,10 @@ export class PecaController {
     }
   }
 
-  // ATUALIZAR (VINCULAR) uma peça a uma aeronave
+ 
   async atualizar(req: Request, res: Response) {
-    const { id } = req.params; // ID da peça
-    const { aeronaveId } = req.body; // ID da aeronave para vincular
+    const { id } = req.params; 
+    const { aeronaveId } = req.body; 
 
     try {
       const pecaAtualizada = await prisma.peca.update({
@@ -43,13 +43,13 @@ export class PecaController {
     }
   }
 
-  // --- NOVO: BUSCAR POR ID (Para o botão Visualizar) ---
+  
   async buscarPorId(req: Request, res: Response) {
     const { id } = req.params;
     try {
       const peca = await prisma.peca.findUnique({
         where: { id },
-        include: { aeronave: true } // Traz a aeronave vinculada para exibir no modal
+        include: { aeronave: true } 
       });
 
       if (!peca) {

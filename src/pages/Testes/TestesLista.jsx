@@ -7,20 +7,20 @@ import Modal from '../../components/Modal/Modal.jsx';
 
 function TestesLista() {
   const [listaDeTestes, setListaDeTestes] = useState([]);
-  const [listaDeAeronaves, setListaDeAeronaves] = useState([]); // Para o select
+  const [listaDeAeronaves, setListaDeAeronaves] = useState([]); 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- NOVO: Estado para Visualização ---
+  
   const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
   const [testeDetalhes, setTesteDetalhes] = useState(null);
 
-  // Estados do formulário
+  
   const [novoTipo, setNovoTipo] = useState('ELETRICO');
   const [novoResultado, setNovoResultado] = useState('APROVADO');
   const [novaData, setNovaData] = useState('');
   const [novaAeronaveId, setNovaAeronaveId] = useState('');
 
-  // --- CARREGAR DADOS ---
+  
   useEffect(() => {
     carregarDados();
   }, []);
@@ -38,7 +38,7 @@ function TestesLista() {
     }
   };
 
-  // --- NOVO: HANDLE VISUALIZAR ---
+  
   const handleVisualizar = async (testeId) => {
     try {
       const res = await axios.get(`http://localhost:3000/testes/${testeId}`);
@@ -50,7 +50,7 @@ function TestesLista() {
     }
   };
 
-  // --- SALVAR DADOS (POST) ---
+  
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -63,7 +63,7 @@ function TestesLista() {
       const novoTeste = {
         tipo: novoTipo,
         resultado: novoResultado,
-        data: novaData, // Data em string YYYY-MM-DD
+        data: novaData, 
         aeronaveId: novaAeronaveId,
       };
 
@@ -72,7 +72,7 @@ function TestesLista() {
       alert("Teste registrado com sucesso!");
       carregarDados();
       
-      // Limpa form
+      
       setIsModalOpen(false);
       setNovoTipo('ELETRICO');
       setNovoResultado('APROVADO');
@@ -112,7 +112,7 @@ function TestesLista() {
               <td>{teste.resultado}</td>
               <td>{new Date(teste.data).toLocaleDateString()}</td>
               <td>
-  {/* Se tiver aeronave, mostra o código (ex: AC-001), senão mostra o ID ou N/A */}
+  {}
   {teste.aeronave ? teste.aeronave.codigo : teste.aeronaveId}
 </td>
               <td>
@@ -125,7 +125,7 @@ function TestesLista() {
         </tbody>
       </table>
 
-      {/* MODAL DE CADASTRO */}
+      {}
       {isModalOpen && (
         <Modal title="Cadastrar Novo Teste" onClose={() => setIsModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleFormSubmit}>
@@ -162,7 +162,7 @@ function TestesLista() {
         </Modal>
       )}
 
-      {/* --- NOVO: MODAL DE VISUALIZAÇÃO --- */}
+      {}
       {isVisualizarModalOpen && testeDetalhes && (
         <Modal title={`Detalhes do Teste`} onClose={() => setIsVisualizarModalOpen(false)}>
           <div style={{ padding: '10px' }}>

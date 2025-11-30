@@ -1,11 +1,9 @@
-// src/controllers/AeronaveController.ts
-
 import { Request, Response } from 'express';
-import prisma from '../prisma'; // Importa a conexão que criamos
+import prisma from '../prisma'; 
 
 export class AeronaveController {
   
-  // LISTAR todas as aeronaves (GET)
+  
   async listar(req: Request, res: Response) {
     try {
       const aeronaves = await prisma.aeronave.findMany();
@@ -15,12 +13,12 @@ export class AeronaveController {
     }
   }
 
-  // CRIAR uma nova aeronave (POST)
+  
   async criar(req: Request, res: Response) {
     try {
       const { codigo, modelo, tipo, capacidade, alcance } = req.body;
 
-      // Validação simples
+     
       if (!codigo || !modelo) {
         return res.status(400).json({ error: 'Código e Modelo são obrigatórios' });
       }
@@ -42,8 +40,6 @@ export class AeronaveController {
     }
   }
 
-  // --- NOVO MÉTODO: BUSCAR POR ID (GET /:id) ---
-  // Este é o método que o botão "Visualizar" chama
   async buscarPorId(req: Request, res: Response) {
     const { id } = req.params;
 
@@ -53,7 +49,6 @@ export class AeronaveController {
         include: { 
           pecas: true, 
           testes: true,
-          // MUDANÇA AQUI: Trazemos as etapas E os funcionários delas
           etapas: {
             include: {
               funcionarios: true

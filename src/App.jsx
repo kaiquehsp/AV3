@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import Layout from './components/Layout/Layout.jsx';
 import Login from './pages/Login/Login.jsx';
-import Registro from './pages/Registro/Registro.jsx'; // A nossa nova página padrão
+import Registro from './pages/Registro/Registro.jsx'; 
 import Dashboard from './pages/Dashboard/Dashboard.jsx';
 import AeronavesLista from './pages/Aeronaves/AeronavesLista.jsx';
 import FuncionariosLista from './pages/Funcionarios/FuncionariosLista.jsx';
@@ -29,7 +29,7 @@ function App() {
         {}
         <Route index element={<Dashboard />} /> 
         
-        {/* -=-=- */}
+        {}
         <Route path="aeronaves" element={<AeronavesLista />} />
         <Route path="funcionarios" element={<FuncionariosLista />} />
         <Route path="etapas" element={<EtapasLista />} />

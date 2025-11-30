@@ -9,17 +9,17 @@ function PecasLista() {
   const [listaDePecas, setListaDePecas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // --- NOVO: Estado para Visualização ---
+  
   const [isVisualizarModalOpen, setIsVisualizarModalOpen] = useState(false);
   const [pecaDetalhes, setPecaDetalhes] = useState(null);
 
-  // Estados do formulário
+  
   const [novoNome, setNovoNome] = useState('');
   const [novoFornecedor, setNovoFornecedor] = useState('');
   const [novoTipo, setNovoTipo] = useState('NACIONAL');
   const [novoStatus, setNovoStatus] = useState('EM_PRODUCAO');
 
-  // --- CARREGAR DADOS ---
+  
   useEffect(() => {
     carregarPecas();
   }, []);
@@ -33,7 +33,7 @@ function PecasLista() {
     }
   };
 
-  // --- NOVO: HANDLE VISUALIZAR (Busca dados completos) ---
+  
   const handleVisualizar = async (id) => {
     try {
       const res = await axios.get(`http://localhost:3000/pecas/${id}`);
@@ -45,7 +45,7 @@ function PecasLista() {
     }
   };
 
-  // --- SALVAR DADOS ---
+  
   const handleCadastrarSubmit = async (e) => {
     e.preventDefault();
 
@@ -111,7 +111,7 @@ function PecasLista() {
         </tbody>
       </table>
 
-      {/* MODAL DE CADASTRO */}
+      {}
       {isModalOpen && (
         <Modal title="Cadastrar Nova Peça" onClose={() => setIsModalOpen(false)}>
           <form className={styles.modalForm} onSubmit={handleCadastrarSubmit}>
@@ -143,7 +143,7 @@ function PecasLista() {
         </Modal>
       )}
 
-      {/* --- NOVO: MODAL DE VISUALIZAÇÃO --- */}
+      {}
       {isVisualizarModalOpen && pecaDetalhes && (
         <Modal title={`Detalhes: ${pecaDetalhes.nome}`} onClose={() => setIsVisualizarModalOpen(false)}>
           <div style={{ padding: '10px' }}>
